@@ -19,7 +19,7 @@ data_request = requests.get(link)
 row_data = pd.DataFrame(data_request .json())  #num of all stock
 print(row_data)
 
-row_data  = row_data .rename(columns={'證券代號':'STOCK_ID', '證券名稱':'NAME','成交股數':'V','成交金額':'T','開盤價':'O','最高價':'H','最低價':'L','收盤價':'C','漲跌價差':'D','成交筆數':'v'})
+row_data  = row_data .rename(columns={'證券代號':'STOCK_ID', '證券名稱':'NAME'})
 print(row_data )
 historical_data = pd.DataFrame()
 for i in row_data.index:    
