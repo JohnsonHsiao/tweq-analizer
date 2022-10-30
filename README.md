@@ -1,2 +1,2 @@
-# tweq-analizer
+# tweq-analyzer
 Taiwan equity market analysis   
