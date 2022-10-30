@@ -11,6 +11,8 @@ import time
 import requests
 # sys.path.insert(1, os.path.dirname(__file__) + '/..')
 user_home_path = str(Path.home())
+os.makedirs(f'{user_home_path}/tweq-analizer/data_center/',exist_ok=True)
+data_center = f'{user_home_path}/tweq-analizer/data_center/'
 
 link = 'https://quality.data.gov.tw/dq_download_json.php?nid=11549&md5_url=bb878d47ffbe7b83bfc1b41d0b24946e'
 data_request = requests.get(link)
@@ -25,6 +27,6 @@ for i in row_data.index:
     data = yf.Ticker(stock_id)
     df = data.history(period="max")
     print(df)
-    df.to_csv(f'{user_home_path}/tweq-analizer/data_center/'+f'{stock_id}.csv')
+    df.to_csv(f'{data_center}{stock_id}.csv')
 
     
