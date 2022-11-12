@@ -1,0 +1,302 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>2021-11-15</th>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-16</th>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-17</th>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-18</th>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-19</th>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>2022-11-07</th>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-08</th>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-09</th>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-10</th>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-11</th>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 7 columns</p>\n</div>",
+      "text/plain": "             open   high    low  close    adjclose    volume   ticker\n2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452  2330.TW\n2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108  2330.TW\n2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852  2330.TW\n2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651  2330.TW\n2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348  2330.TW\n...           ...    ...    ...    ...         ...       ...      ...\n2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706  2330.TW\n2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223  2330.TW\n2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831  2330.TW\n2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942  2330.TW\n2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195  2330.TW\n\n[245 rows x 7 columns]"
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from yahoo_fin.stock_info import *\n",
+    "import pandas as pd\n",
+    "from datetime import date, timedelta\n",
+    "import statsmodels.api as sm\n",
+    "import getFamaFrenchFactors as gff\n",
+    "symbol = '2330.tw'\n",
+    "df = get_data(symbol, start_date = datetime.datetime.now() - datetime.timedelta(365))\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>index</th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>2021-11-15</td>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2021-11-16</td>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>2021-11-17</td>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>2021-11-18</td>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>2021-11-19</td>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>240</th>\n      <td>2022-11-07</td>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>241</th>\n      <td>2022-11-08</td>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>242</th>\n      <td>2022-11-09</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>243</th>\n      <td>2022-11-10</td>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>244</th>\n      <td>2022-11-11</td>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 8 columns</p>\n</div>",
+      "text/plain": "         index   open   high    low  close    adjclose    volume   ticker\n0   2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452  2330.TW\n1   2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108  2330.TW\n2   2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852  2330.TW\n3   2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651  2330.TW\n4   2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348  2330.TW\n..         ...    ...    ...    ...    ...         ...       ...      ...\n240 2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706  2330.TW\n241 2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223  2330.TW\n242 2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831  2330.TW\n243 2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942  2330.TW\n244 2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195  2330.TW\n\n[245 rows x 8 columns]"
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = df.reset_index(level=0)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>2021-11-15</td>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2021-11-16</td>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>2021-11-17</td>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>2021-11-18</td>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>2021-11-19</td>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>240</th>\n      <td>2022-11-07</td>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>241</th>\n      <td>2022-11-08</td>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>242</th>\n      <td>2022-11-09</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>243</th>\n      <td>2022-11-10</td>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>244</th>\n      <td>2022-11-11</td>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 8 columns</p>\n</div>",
+      "text/plain": "          Date   open   high    low  close    adjclose    volume   ticker\n0   2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452  2330.TW\n1   2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108  2330.TW\n2   2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852  2330.TW\n3   2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651  2330.TW\n4   2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348  2330.TW\n..         ...    ...    ...    ...    ...         ...       ...      ...\n240 2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706  2330.TW\n241 2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223  2330.TW\n242 2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831  2330.TW\n243 2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942  2330.TW\n244 2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195  2330.TW\n\n[245 rows x 8 columns]"
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.rename(columns={df.columns[0]: 'Date'},inplace=True)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ff3_monthly = gff.famaFrench3Factor(frequency='m')\n",
+    "ff3_monthly.rename(columns={\"date_ff_factors\": 'Date'}, inplace=True)\n",
+    "ff3_monthly.set_index('Date', inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n    </tr>\n    <tr>\n      <th>Date</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>2021-11-15</th>\n      <td>2021-11-15</td>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-16</th>\n      <td>2021-11-16</td>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-17</th>\n      <td>2021-11-17</td>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-18</th>\n      <td>2021-11-18</td>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2021-11-19</th>\n      <td>2021-11-19</td>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>2022-11-07</th>\n      <td>2022-11-07</td>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-08</th>\n      <td>2022-11-08</td>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-09</th>\n      <td>2022-11-09</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-10</th>\n      <td>2022-11-10</td>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n    </tr>\n    <tr>\n      <th>2022-11-11</th>\n      <td>2022-11-11</td>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 8 columns</p>\n</div>",
+      "text/plain": "                 Date   open   high    low  close    adjclose    volume  \\\nDate                                                                      \n2021-11-15 2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452   \n2021-11-16 2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108   \n2021-11-17 2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852   \n2021-11-18 2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651   \n2021-11-19 2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348   \n...               ...    ...    ...    ...    ...         ...       ...   \n2022-11-07 2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706   \n2022-11-08 2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223   \n2022-11-09 2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831   \n2022-11-10 2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942   \n2022-11-11 2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195   \n\n             ticker  \nDate                 \n2021-11-15  2330.TW  \n2021-11-16  2330.TW  \n2021-11-17  2330.TW  \n2021-11-18  2330.TW  \n2021-11-19  2330.TW  \n...             ...  \n2022-11-07  2330.TW  \n2022-11-08  2330.TW  \n2022-11-09  2330.TW  \n2022-11-10  2330.TW  \n2022-11-11  2330.TW  \n\n[245 rows x 8 columns]"
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.index = pd.to_datetime(df.Date)\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "stock_returns = df['adjclose'].resample('M').last().pct_change().dropna()\n",
+    "stock_returns.name = \"Month_Rtn\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Mkt-RF</th>\n      <th>SMB</th>\n      <th>HML</th>\n      <th>RF</th>\n      <th>Month_Rtn</th>\n    </tr>\n    <tr>\n      <th>Date</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>2021-12-31</th>\n      <td>0.0310</td>\n      <td>-0.0166</td>\n      <td>0.0328</td>\n      <td>0.0001</td>\n      <td>0.036630</td>\n    </tr>\n    <tr>\n      <th>2022-01-31</th>\n      <td>-0.0625</td>\n      <td>-0.0594</td>\n      <td>0.1275</td>\n      <td>0.0000</td>\n      <td>0.034146</td>\n    </tr>\n    <tr>\n      <th>2022-02-28</th>\n      <td>-0.0229</td>\n      <td>0.0223</td>\n      <td>0.0304</td>\n      <td>0.0000</td>\n      <td>-0.050314</td>\n    </tr>\n    <tr>\n      <th>2022-03-31</th>\n      <td>0.0305</td>\n      <td>-0.0160</td>\n      <td>-0.0180</td>\n      <td>0.0001</td>\n      <td>-0.006694</td>\n    </tr>\n    <tr>\n      <th>2022-04-30</th>\n      <td>-0.0946</td>\n      <td>-0.0141</td>\n      <td>0.0619</td>\n      <td>0.0001</td>\n      <td>-0.098827</td>\n    </tr>\n    <tr>\n      <th>2022-05-31</th>\n      <td>-0.0034</td>\n      <td>-0.0185</td>\n      <td>0.0841</td>\n      <td>0.0003</td>\n      <td>0.040892</td>\n    </tr>\n    <tr>\n      <th>2022-06-30</th>\n      <td>-0.0843</td>\n      <td>0.0209</td>\n      <td>-0.0597</td>\n      <td>0.0006</td>\n      <td>-0.145383</td>\n    </tr>\n    <tr>\n      <th>2022-07-31</th>\n      <td>0.0957</td>\n      <td>0.0281</td>\n      <td>-0.0410</td>\n      <td>0.0008</td>\n      <td>0.069328</td>\n    </tr>\n    <tr>\n      <th>2022-08-31</th>\n      <td>-0.0378</td>\n      <td>0.0139</td>\n      <td>0.0031</td>\n      <td>0.0019</td>\n      <td>-0.007859</td>\n    </tr>\n    <tr>\n      <th>2022-09-30</th>\n      <td>-0.0936</td>\n      <td>-0.0081</td>\n      <td>0.0005</td>\n      <td>0.0019</td>\n      <td>-0.159541</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
+      "text/plain": "            Mkt-RF     SMB     HML      RF  Month_Rtn\nDate                                                 \n2021-12-31  0.0310 -0.0166  0.0328  0.0001   0.036630\n2022-01-31 -0.0625 -0.0594  0.1275  0.0000   0.034146\n2022-02-28 -0.0229  0.0223  0.0304  0.0000  -0.050314\n2022-03-31  0.0305 -0.0160 -0.0180  0.0001  -0.006694\n2022-04-30 -0.0946 -0.0141  0.0619  0.0001  -0.098827\n2022-05-31 -0.0034 -0.0185  0.0841  0.0003   0.040892\n2022-06-30 -0.0843  0.0209 -0.0597  0.0006  -0.145383\n2022-07-31  0.0957  0.0281 -0.0410  0.0008   0.069328\n2022-08-31 -0.0378  0.0139  0.0031  0.0019  -0.007859\n2022-09-30 -0.0936 -0.0081  0.0005  0.0019  -0.159541"
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "ff_data = ff3_monthly.merge(stock_returns,on='Date')\n",
+    "ff_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "                            OLS Regression Results                            \n",
+      "==============================================================================\n",
+      "Dep. Variable:                      y   R-squared:                       0.900\n",
+      "Model:                            OLS   Adj. R-squared:                  0.849\n",
+      "Method:                 Least Squares   F-statistic:                     17.90\n",
+      "Date:                Sat, 12 Nov 2022   Prob (F-statistic):            0.00213\n",
+      "Time:                        21:07:12   Log-Likelihood:                 22.874\n",
+      "No. Observations:                  10   AIC:                            -37.75\n",
+      "Df Residuals:                       6   BIC:                            -36.54\n",
+      "Df Model:                           3                                         \n",
+      "Covariance Type:            nonrobust                                         \n",
+      "==============================================================================\n",
+      "                 coef    std err          t      P>|t|      [0.025      0.975]\n",
+      "------------------------------------------------------------------------------\n",
+      "const         -0.0177      0.012     -1.531      0.177      -0.046       0.011\n",
+      "Mkt-RF         1.1906      0.173      6.874      0.000       0.767       1.614\n",
+      "SMB           -0.0594      0.652     -0.091      0.930      -1.654       1.535\n",
+      "HML            0.7593      0.301      2.520      0.045       0.022       1.497\n",
+      "==============================================================================\n",
+      "Omnibus:                        1.427   Durbin-Watson:                   2.378\n",
+      "Prob(Omnibus):                  0.490   Jarque-Bera (JB):                0.765\n",
+      "Skew:                           0.644   Prob(JB):                        0.682\n",
+      "Kurtosis:                       2.580   Cond. No.                         69.4\n",
+      "==============================================================================\n",
+      "\n",
+      "Notes:\n",
+      "[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/scipy/stats/stats.py:1603: UserWarning: kurtosistest only valid for n>=20 ... continuing anyway, n=10\n",
+      "  warnings.warn(\"kurtosistest only valid for n>=20 ... continuing \"\n"
+     ]
+    }
+   ],
+   "source": [
+    "X = ff_data[['Mkt-RF', 'SMB', 'HML']]\n",
+    "y = ff_data['Month_Rtn'] - ff_data['RF']\n",
+    "X = sm.add_constant(X)\n",
+    "ff_model = sm.OLS(y, X).fit()\n",
+    "print(ff_model.summary())\n",
+    "intercept, b1, b2, b3 = ff_model.params"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rf = ff_data['RF'].mean()\n",
+    "market_premium = ff3_monthly['Mkt-RF'].mean()\n",
+    "size_premium = ff3_monthly['SMB'].mean()\n",
+    "value_premium = ff3_monthly['HML'].mean()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Expected yearly return: 0.1325885977654364\n"
+     ]
+    }
+   ],
+   "source": [
+    "expected_monthly_return = rf + b1 * market_premium + b2 * size_premium + b3 * value_premium \n",
+    "expected_yearly_return = expected_monthly_return * 12\n",
+    "print(\"Expected yearly return: \" + str(expected_yearly_return))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.00036830166045954553\n"
+     ]
+    }
+   ],
+   "source": [
+    "expected_daily_return = expected_monthly_return / 30\n",
+    "print(expected_daily_return)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n      <th>daily_returns</th>\n    </tr>\n    <tr>\n      <th>Date</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>2021-11-15</th>\n      <td>2021-11-15</td>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n      <td>NaN</td>\n    </tr>\n    <tr>\n      <th>2021-11-16</th>\n      <td>2021-11-16</td>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n      <td>0.003289</td>\n    </tr>\n    <tr>\n      <th>2021-11-17</th>\n      <td>2021-11-17</td>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n      <td>0.000000</td>\n    </tr>\n    <tr>\n      <th>2021-11-18</th>\n      <td>2021-11-18</td>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n      <td>0.004918</td>\n    </tr>\n    <tr>\n      <th>2021-11-19</th>\n      <td>2021-11-19</td>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n      <td>0.008157</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>2022-11-07</th>\n      <td>2022-11-07</td>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n      <td>0.020942</td>\n    </tr>\n    <tr>\n      <th>2022-11-08</th>\n      <td>2022-11-08</td>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n      <td>0.023077</td>\n    </tr>\n    <tr>\n      <th>2022-11-09</th>\n      <td>2022-11-09</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n      <td>0.045113</td>\n    </tr>\n    <tr>\n      <th>2022-11-10</th>\n      <td>2022-11-10</td>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n      <td>-0.022782</td>\n    </tr>\n    <tr>\n      <th>2022-11-11</th>\n      <td>2022-11-11</td>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n      <td>0.083436</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 9 columns</p>\n</div>",
+      "text/plain": "                 Date   open   high    low  close    adjclose    volume  \\\nDate                                                                      \n2021-11-15 2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452   \n2021-11-16 2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108   \n2021-11-17 2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852   \n2021-11-18 2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651   \n2021-11-19 2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348   \n...               ...    ...    ...    ...    ...         ...       ...   \n2022-11-07 2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706   \n2022-11-08 2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223   \n2022-11-09 2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831   \n2022-11-10 2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942   \n2022-11-11 2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195   \n\n             ticker  daily_returns  \nDate                                \n2021-11-15  2330.TW            NaN  \n2021-11-16  2330.TW       0.003289  \n2021-11-17  2330.TW       0.000000  \n2021-11-18  2330.TW       0.004918  \n2021-11-19  2330.TW       0.008157  \n...             ...            ...  \n2022-11-07  2330.TW       0.020942  \n2022-11-08  2330.TW       0.023077  \n2022-11-09  2330.TW       0.045113  \n2022-11-10  2330.TW      -0.022782  \n2022-11-11  2330.TW       0.083436  \n\n[245 rows x 9 columns]"
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['daily_returns']=(df['close'].pct_change())\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>open</th>\n      <th>high</th>\n      <th>low</th>\n      <th>close</th>\n      <th>adjclose</th>\n      <th>volume</th>\n      <th>ticker</th>\n      <th>daily_returns</th>\n      <th>abnormal_returns</th>\n    </tr>\n    <tr>\n      <th>Date</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>2021-11-15</th>\n      <td>2021-11-15</td>\n      <td>609.0</td>\n      <td>611.0</td>\n      <td>607.0</td>\n      <td>608.0</td>\n      <td>595.545288</td>\n      <td>15551452</td>\n      <td>2330.TW</td>\n      <td>NaN</td>\n      <td>NaN</td>\n    </tr>\n    <tr>\n      <th>2021-11-16</th>\n      <td>2021-11-16</td>\n      <td>612.0</td>\n      <td>612.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>20917108</td>\n      <td>2330.TW</td>\n      <td>0.003289</td>\n      <td>-0.002921</td>\n    </tr>\n    <tr>\n      <th>2021-11-17</th>\n      <td>2021-11-17</td>\n      <td>615.0</td>\n      <td>615.0</td>\n      <td>608.0</td>\n      <td>610.0</td>\n      <td>597.504395</td>\n      <td>19717852</td>\n      <td>2330.TW</td>\n      <td>0.000000</td>\n      <td>0.000368</td>\n    </tr>\n    <tr>\n      <th>2021-11-18</th>\n      <td>2021-11-18</td>\n      <td>613.0</td>\n      <td>614.0</td>\n      <td>607.0</td>\n      <td>613.0</td>\n      <td>600.442932</td>\n      <td>20030651</td>\n      <td>2330.TW</td>\n      <td>0.004918</td>\n      <td>-0.004550</td>\n    </tr>\n    <tr>\n      <th>2021-11-19</th>\n      <td>2021-11-19</td>\n      <td>622.0</td>\n      <td>623.0</td>\n      <td>617.0</td>\n      <td>618.0</td>\n      <td>605.340515</td>\n      <td>35554348</td>\n      <td>2330.TW</td>\n      <td>0.008157</td>\n      <td>-0.007788</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>2022-11-07</th>\n      <td>2022-11-07</td>\n      <td>390.0</td>\n      <td>393.0</td>\n      <td>387.0</td>\n      <td>390.0</td>\n      <td>390.000000</td>\n      <td>35387706</td>\n      <td>2330.TW</td>\n      <td>0.020942</td>\n      <td>-0.020574</td>\n    </tr>\n    <tr>\n      <th>2022-11-08</th>\n      <td>2022-11-08</td>\n      <td>395.0</td>\n      <td>399.5</td>\n      <td>394.0</td>\n      <td>399.0</td>\n      <td>399.000000</td>\n      <td>31838223</td>\n      <td>2330.TW</td>\n      <td>0.023077</td>\n      <td>-0.022709</td>\n    </tr>\n    <tr>\n      <th>2022-11-09</th>\n      <td>2022-11-09</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>403.5</td>\n      <td>417.0</td>\n      <td>417.000000</td>\n      <td>52260831</td>\n      <td>2330.TW</td>\n      <td>0.045113</td>\n      <td>-0.044744</td>\n    </tr>\n    <tr>\n      <th>2022-11-10</th>\n      <td>2022-11-10</td>\n      <td>409.0</td>\n      <td>411.5</td>\n      <td>406.0</td>\n      <td>407.5</td>\n      <td>407.500000</td>\n      <td>32044942</td>\n      <td>2330.TW</td>\n      <td>-0.022782</td>\n      <td>0.023150</td>\n    </tr>\n    <tr>\n      <th>2022-11-11</th>\n      <td>2022-11-11</td>\n      <td>441.5</td>\n      <td>442.0</td>\n      <td>435.0</td>\n      <td>441.5</td>\n      <td>441.500000</td>\n      <td>80016195</td>\n      <td>2330.TW</td>\n      <td>0.083436</td>\n      <td>-0.083067</td>\n    </tr>\n  </tbody>\n</table>\n<p>245 rows × 10 columns</p>\n</div>",
+      "text/plain": "                 Date   open   high    low  close    adjclose    volume  \\\nDate                                                                      \n2021-11-15 2021-11-15  609.0  611.0  607.0  608.0  595.545288  15551452   \n2021-11-16 2021-11-16  612.0  612.0  608.0  610.0  597.504395  20917108   \n2021-11-17 2021-11-17  615.0  615.0  608.0  610.0  597.504395  19717852   \n2021-11-18 2021-11-18  613.0  614.0  607.0  613.0  600.442932  20030651   \n2021-11-19 2021-11-19  622.0  623.0  617.0  618.0  605.340515  35554348   \n...               ...    ...    ...    ...    ...         ...       ...   \n2022-11-07 2022-11-07  390.0  393.0  387.0  390.0  390.000000  35387706   \n2022-11-08 2022-11-08  395.0  399.5  394.0  399.0  399.000000  31838223   \n2022-11-09 2022-11-09  403.5  417.0  403.5  417.0  417.000000  52260831   \n2022-11-10 2022-11-10  409.0  411.5  406.0  407.5  407.500000  32044942   \n2022-11-11 2022-11-11  441.5  442.0  435.0  441.5  441.500000  80016195   \n\n             ticker  daily_returns  abnormal_returns  \nDate                                                  \n2021-11-15  2330.TW            NaN               NaN  \n2021-11-16  2330.TW       0.003289         -0.002921  \n2021-11-17  2330.TW       0.000000          0.000368  \n2021-11-18  2330.TW       0.004918         -0.004550  \n2021-11-19  2330.TW       0.008157         -0.007788  \n...             ...            ...               ...  \n2022-11-07  2330.TW       0.020942         -0.020574  \n2022-11-08  2330.TW       0.023077         -0.022709  \n2022-11-09  2330.TW       0.045113         -0.044744  \n2022-11-10  2330.TW      -0.022782          0.023150  \n2022-11-11  2330.TW       0.083436         -0.083067  \n\n[245 rows x 10 columns]"
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['abnormal_returns'] = expected_daily_return - df['daily_returns']\n",
+    "df"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.9.1 64-bit",
+   "metadata": {
+    "interpreter": {
+     "hash": "aee8b7b246df8f9039afb4144a1f6fd8d2ca17a180786b69acc140d282b71a49"
+    }
+   },
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.1"
+  },
+  "orig_nbformat": 2
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
