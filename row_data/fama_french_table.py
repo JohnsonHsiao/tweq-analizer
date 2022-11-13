@@ -48,6 +48,7 @@ def create_table(symbol):
 
     data['daily_returns']=(data['close'].pct_change())
     data['abnormal_returns'] = expected_daily_return - data['daily_returns']
+    logging.info(data)
     print(data)
 
 
