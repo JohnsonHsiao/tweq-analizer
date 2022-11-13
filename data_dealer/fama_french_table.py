@@ -49,8 +49,8 @@ def create_table(symbol):
     data['daily_returns']=(data['close'].pct_change())
     data['abnormal_returns'] = expected_daily_return - data['daily_returns']
     logging.info(data)
-    print(data)
-
+    result = data[['ticker','daily_returns','abnormal_returns']]
+    print(result)
 
 if __name__ == '__main__':
     for name in get_stock_id():
