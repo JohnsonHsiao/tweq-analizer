@@ -14,6 +14,7 @@ def get_ffdata(symbol): # Mkt-RF,SMB,HML,RF,Month_Rtn by month
     symbol = f'{symbol}.TW'
     data = get_data(symbol, start_date = datetime.datetime.now() - datetime.timedelta(900))
     data = data.reset_index(level=0)
+
     data.rename(columns={data.columns[0]: 'Date'},inplace=True)
     ff3_monthly = gff.famaFrench3Factor(frequency='m')
     ff3_monthly.rename(columns={"date_ff_factors": 'Date'}, inplace=True)
@@ -32,6 +33,9 @@ def create_table(symbol):
     X = sm.add_constant(X)
     ff_model = sm.OLS(y, X).fit()
     # print(ff_model.summary())
+    # with open(f'/Users/johnsonhsiao/tweq-analizer/{symbol}_summary.csv', 'w') as fh:
+    #     fh.write(ff_model.summary().as_csv())
+    print(ff_model.summary())
     logging.info(ff_model.summary())
     intercept, b1, b2, b3 = ff_model.params #const  Mkt-RF SMB  HML 
     rf = ff_data['RF'].mean()
@@ -54,4 +58,5 @@ def create_table(symbol):
 
 if __name__ == '__main__':
     for name in get_stock_id():
-        create_table(name)
+        if len(name) == 4:
+            create_table(name)
