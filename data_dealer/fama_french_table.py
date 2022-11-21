@@ -5,7 +5,7 @@ import statsmodels.api as sm
 import getFamaFrenchFactors as gff
 from data_loader import get_stock_id
 import logging
-logging.basicConfig(filename='./tweq-analizer/data_center/loader_server.log', level=logging.INFO)
+logging.basicConfig(filename='./data_center/loader_server.log', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,8 @@ def create_table(symbol):
     data['abnormal_returns'] = expected_daily_return - data['daily_returns']
     logging.info(data)
     result = data[['ticker','daily_returns','abnormal_returns']]
+    with open(f'./data_center/{symbol}.csv', 'w') as f:
+        f.write(result.to_csv())
     print(result)
 
 if __name__ == '__main__':
