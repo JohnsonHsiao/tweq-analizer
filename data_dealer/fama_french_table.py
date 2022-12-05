@@ -1,4 +1,3 @@
-from yahoo_fin.stock_info import *
 import pandas as pd
 from datetime import date, timedelta
 import statsmodels.api as sm
