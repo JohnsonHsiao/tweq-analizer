@@ -35,7 +35,7 @@ def get_factor(data):
     bh = big[(big['bp'] > big['bp'].quantile(0.7))]
     bm = big[((big['bp'].quantile(0.7) > big['bp']) & (big['bp'] > big['bp'].quantile(0.3)))]
     bl = big[(big['bp'] < big['bp'].quantile(0.3))]
-    return bh, bm, bl#, sh, sm, sl
+    return bh, bm, bl, sh, sm, sl
 
 def get_stock_return(name):
     stock_return = ['Null']
@@ -49,7 +49,7 @@ def get_stock_return(name):
 
 def SMB_and_HML():
     temp = {}
-    factor_list = ['BH','BM','BL']#,'SH','SM','SL']
+    factor_list = ['BH','BM','BL','SH','SM','SL']
     i = 0
     a = 0
     for factor in get_factor(data):
