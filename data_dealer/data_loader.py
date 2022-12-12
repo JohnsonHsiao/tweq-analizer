@@ -15,7 +15,7 @@ user_home_path = str(Path.home())
 os.makedirs(f'{user_home_path}/tweq-analizer/data_center/', exist_ok=True)
 os.makedirs(f'{user_home_path}/tweq-analizer/data_center/stock_data', exist_ok=True)
 data_center = f'{user_home_path}/tweq-analizer/data_center/'
-stock_file = f'{user_home_path}/tweq-analizer/data_center/stock_data'
+stock_file = f'{user_home_path}/tweq-analizer/data_center/stock_data/'
 
 capital_rank = pd.read_csv(f'{data_center}StockList.csv', names=['rank', 'id', 'pct'])
 BPratio_rank = pd.read_csv(f'{data_center}BWIBBU_d_ALL_20221202.csv')
