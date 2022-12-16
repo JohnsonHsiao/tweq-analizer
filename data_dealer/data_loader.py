@@ -39,12 +39,12 @@ def get_factor(data):
 
 def get_stock_return(name):
     stock_return = ['Null']
-    stock_data = yf.download(str(name)+'.TW', start ='2019-12-30')
+    stock_data = yf.download(str(name)+'.TW', start ='2018-12-30')
     for num in range(len(stock_data)):
         if num+2 <= len(stock_data):
             stock_return.append((stock_data['Close'][num+1] - stock_data['Close'][num])/stock_data['Close'][num])
     stock_data['return'] = stock_return # stock return
-    stock_data.to_csv(f'{stock_file}{name}.TW.csv')
+    # stock_data.to_csv(f'{stock_file}{name}.TW.csv')
     return stock_data
 
 def SMB_and_HML():
@@ -72,7 +72,7 @@ def SMB_and_HML():
     
 
 def ff_data_table():
-    daily_data = yf.download('^TWII', start ='2019-12-30')
+    daily_data = yf.download('^TWII', start ='2018-12-30')
     daily_return = ['Null']
     for num in range(len(daily_data)):
         if num+2 <= len(daily_data):
