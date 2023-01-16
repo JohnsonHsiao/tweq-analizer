@@ -1,63 +1,76 @@
 import pandas as pd
 from datetime import date, timedelta
 import statsmodels.api as sm
-import getFamaFrenchFactors as gff
-from data_loader import get_stock_id
-import logging
-logging.basicConfig(filename='./data_center/loader_server.log', level=logging.INFO)
+import sys
+from pathlib import Path
+import os
+user_home_path = str(Path.home())
+data_center = f'{user_home_path}/tweq-analizer/data_center/'
+stock_file = f'{user_home_path}/tweq-analizer/data_center/stock_data/'
+os.makedirs(f'{user_home_path}/tweq-analizer/data_center/final_data', exist_ok=True)
+final_data = f'{user_home_path}/tweq-analizer/data_center/final_data/'
 
-logger = logging.getLogger(__name__)
+df1 = pd.read_csv(f'{data_center}ff_table.csv')
+ff_table = df1.dropna().reset_index(drop=True)
+ff_table['rf'] = ff_table['rf']*0.01
+stock_list = os.listdir(stock_file)
 
-def get_ffdata(symbol): # Mkt-RF,SMB,HML,RF,Month_Rtn by month
-    
-    symbol = f'{symbol}.TW'
-    data = get_data(symbol, start_date = datetime.datetime.now() - datetime.timedelta(900))
-    data = data.reset_index(level=0)
+def final_table(ff_table, stock_list):
+    for stock in stock_list:
+        print(stock)
+        stock_data = pd.read_csv(f'{stock_file}{stock}')
+        stock_data.dropna().reset_index(drop=True)
+        stock_data['Daily_Return'] = stock_data['Adj Close'].pct_change().dropna()
+        joint = ff_table.merge(stock_data,on = ['Date'], how = 'left')
+        joint['mkt-rf'] = joint['market'] - joint['rf']
+        joint = joint.drop(index = 0)
 
-    data.rename(columns={data.columns[0]: 'Date'},inplace=True)
-    ff3_monthly = gff.famaFrench3Factor(frequency='m')
-    ff3_monthly.rename(columns={"date_ff_factors": 'Date'}, inplace=True)
-    ff3_monthly.set_index('Date', inplace=True)
-    data.index = pd.to_datetime(data.Date)
-    stock_returns = data['adjclose'].resample('M').last().pct_change().dropna()
-    stock_returns.name = "Month_Rtn"
-    ff_data = ff3_monthly.merge(stock_returns,on='Date')  # Mkt-RF,SMB,HML,RF,Month_Rtn by month
-    return ff_data, ff3_monthly, data
+        coefficient = []
+        for i in range(0,836,1):
+            coefficient.append(factor(i,joint))
+        c_table = pd.DataFrame(coefficient, columns = ['const ','mkt-rf','SMB','HML'])
+        c_table.index = c_table.index + 1
 
-def create_table(symbol): 
+        expected_daily_return = []
+        for i in range(11,837,1):
+            a = er(i,joint,c_table)
+            expected_daily_return.append(a)
+            df4 = pd.DataFrame (expected_daily_return, columns = ['ER'])
+            df4.index = df4.index + 1
 
-    ff_data, ff3_monthly, data = get_ffdata(symbol)
-    X = ff_data[['Mkt-RF', 'SMB', 'HML']]
-    y = ff_data['Month_Rtn'] - ff_data['RF']
+        final = joint.drop(index = joint.index[0:129])
+        final.index = final.index - 129
+        final['abnormal_returns'] = df4['ER'] - final['Daily_Return']
+        final.to_csv(f'{final_data}{stock}')
+
+def factor(t,joint):
+    X = joint[['mkt-rf', 'SMB', 'HML']].head(t+120)
+    y = joint['Daily_Return'].head(t+120) - joint['rf'].head(t+120)
     X = sm.add_constant(X)
     ff_model = sm.OLS(y, X).fit()
     # print(ff_model.summary())
-    # with open(f'/Users/johnsonhsiao/tweq-analizer/{symbol}_summary.csv', 'w') as fh:
-    #     fh.write(ff_model.summary().as_csv())
-    print(ff_model.summary())
-    logging.info(ff_model.summary())
-    intercept, b1, b2, b3 = ff_model.params #const  Mkt-RF SMB  HML 
-    rf = ff_data['RF'].mean()
-    market_premium = ff3_monthly['Mkt-RF'].mean()
-    size_premium = ff3_monthly['SMB'].mean()
-    value_premium = ff3_monthly['HML'].mean()
+    intercept, b1, b2, b3 = ff_model.params
+    c = [intercept, b1, b2, b3]
+    return c
 
-    expected_monthly_return = rf + b1 * market_premium + b2 * size_premium + b3 * value_premium 
-    expected_yearly_return = expected_monthly_return * 12
-    print("Expected yearly return: " + str(expected_yearly_return))
-
-    expected_daily_return = expected_monthly_return / 30
-    print(expected_daily_return)
-
-    data['daily_returns']=(data['close'].pct_change())
-    data['abnormal_returns'] = expected_daily_return - data['daily_returns']
-    logging.info(data)
-    result = data[['ticker','daily_returns','abnormal_returns']]
-    with open(f'./data_center/{symbol}.csv', 'w') as f:
-        f.write(result.to_csv())
-    print(result)
+def rf(t,joint):
+    return joint['rf'].loc[t]
+def market_premium(t,joint):
+    return joint['mkt-rf'].loc[t]
+def size_premium(t,joint):
+    return joint['SMB'].loc[t]
+def value_premium(t,joint):
+    return joint['HML'].loc[t]
+def get_const(t,c_table):
+    return c_table['const'].loc[t]
+def get_mkt(t,c_table):
+    return c_table['mkt-rf'].loc[t]
+def get_SMB(t,c_table):
+    return c_table['SMB'].loc[t]
+def get_HML(t,c_table):
+    return c_table['HML'].loc[t]
+def er(t,joint,c_table):
+    return rf(t-10,joint) + get_mkt(t-10,c_table) * market_premium(t-10,joint) + get_SMB(t-10,c_table) * size_premium(t-10,joint) + get_HML(t-10,c_table) * value_premium(t-10,joint)
 
 if __name__ == '__main__':
-    for name in get_stock_id():
-        if len(name) == 4:
-            create_table(name)
+    final_table(ff_table, stock_list) 

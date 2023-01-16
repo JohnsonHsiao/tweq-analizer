@@ -80,6 +80,10 @@ def ff_data_table():
     daily_data['return'] = daily_return # market return
     daily_data = daily_data[daily_data['return']!='Null']  #market return
     SMB, HML = SMB_and_HML()
+    daily_data['return'] = daily_data['return'].tz_localize(None) 
+    rf['Price'] = rf['Price'].tz_localize(None) 
+    SMB = SMB.tz_localize(None) 
+    HML = HML.tz_localize(None) 
     ff_table = pd.concat([daily_data['return'], rf['Price'], SMB,HML], axis = 1)
     ff_table.columns = ['market', 'rf', 'SMB', 'HML']
     ff_table.to_csv(f'{data_center}ff_table.csv')
