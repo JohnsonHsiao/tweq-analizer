@@ -73,6 +73,7 @@ def SMB_and_HML():
 
 def ff_data_table():
     daily_data = yf.download('^TWII', start ='2018-12-30')
+    print(daily_data)
     daily_return = ['Null']
     for num in range(len(daily_data)):
         if num+2 <= len(daily_data):
