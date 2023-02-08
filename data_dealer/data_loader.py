@@ -59,7 +59,7 @@ def SMB_and_HML():
             stock_data = stock_data[stock_data['return']!='Null']
             # print(stock_data)
             pct, _ = factor['pct'][index].split('%')
-            stock_return = stock_data['return'] * float(pct)
+            # stock_return = stock_data['return'] * float(pct)
             temp_list.append(stock_return)
             print(a)
             a += 1

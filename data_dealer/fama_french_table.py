@@ -30,7 +30,7 @@ def final_table(ff_table, stock_list):
         coefficient = []
         for i in range(0,847,1):
             coefficient.append(factor(i,joint))
-        c_table = pd.DataFrame(coefficient, columns = ['const ','mkt-rf','SMB','HML'])
+        c_table = pd.DataFrame(coefficient, columns = ['const','(mkt-rf)','(SMB)','(HML)'])
         c_table.index = c_table.index + 1
         print(c_table)
         final = joint.drop(index = joint.index[0:130]).reset_index(0)
@@ -40,6 +40,7 @@ def final_table(ff_table, stock_list):
             expected_daily_return.append(a)
             final['ER'] = pd.DataFrame (expected_daily_return)
         final['abnormal_returns'] = final['ER'] - final['Daily_Return']
+        final = final.join(c_table)
         print(final)
         final.to_csv(f'{fama_data}{stock}')
 
@@ -64,15 +65,13 @@ def value_premium(t,joint):
 def get_const(t,c_table):
     return c_table['const'].iloc[t]
 def get_mkt(t,c_table):
-    return c_table['mkt-rf'].iloc[t]
+    return c_table['(mkt-rf)'].iloc[t]
 def get_SMB(t,c_table):
-    return c_table['SMB'].iloc[t]
+    return c_table['(SMB)'].iloc[t]
 def get_HML(t,c_table):
-    return c_table['HML'].iloc[t]
+    return c_table['(HML)'].iloc[t]
 def er(t,joint,c_table):
     return rf(t-10,joint) + get_mkt(t-10,c_table) * market_premium(t-10,joint) + get_SMB(t-10,c_table) * size_premium(t-10,joint) + get_HML(t-10,c_table) * value_premium(t-10,joint)
 
 if __name__ == '__main__':
     final_table(ff_table, stock_list) 
-
-#%%
