@@ -21,7 +21,6 @@ def car_table():
         negative_three_to_positive_two(fama_table)
         negative_three_to_positive_three(fama_table)
         fama_table.to_csv(f'{user_home_path}/tweq-analizer/data_center/car_table/{stock}')
-        time.sleep(1.5)
 
 def car(date, t, fama_table): 
     value = 0
