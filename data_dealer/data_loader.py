@@ -44,7 +44,7 @@ def get_stock_return(name):
         if num+2 <= len(stock_data):
             stock_return.append((stock_data['Close'][num+1] - stock_data['Close'][num])/stock_data['Close'][num])
     stock_data['return'] = stock_return # stock return
-    # stock_data.to_csv(f'{stock_file}{name}.TW.csv')
+    stock_data.to_csv(f'{stock_file}{name}.TW.csv')
     return stock_data
 
 def SMB_and_HML():
@@ -59,7 +59,7 @@ def SMB_and_HML():
             stock_data = stock_data[stock_data['return']!='Null']
             # print(stock_data)
             pct, _ = factor['pct'][index].split('%')
-            stock_return = stock_data['return'] * float(pct)
+            # stock_return = stock_data['return'] * float(pct)
             temp_list.append(stock_return)
             print(a)
             a += 1
@@ -73,20 +73,29 @@ def SMB_and_HML():
 
 def ff_data_table():
     daily_data = yf.download('^TWII', start ='2018-12-30')
+    print(daily_data)
     daily_return = ['Null']
     for num in range(len(daily_data)):
         if num+2 <= len(daily_data):
             daily_return.append((daily_data['Close'][num+1] - daily_data['Close'][num])/daily_data['Close'][num])
     daily_data['return'] = daily_return # market return
     daily_data = daily_data[daily_data['return']!='Null']  #market return
-    SMB, HML = SMB_and_HML()
-    daily_data['return'] = daily_data['return'].tz_localize(None) 
+    daily_data.index = pd.to_datetime(daily_data.index).tz_localize(None) 
     rf['Price'] = rf['Price'].tz_localize(None) 
-    SMB = SMB.tz_localize(None) 
-    HML = HML.tz_localize(None) 
+    SMB, HML = SMB_and_HML()
+    SMB.index = SMB.index.tz_localize(None) 
+    HML.index = HML.index.tz_localize(None)
+    SMB.to_csv(f'{data_center}SMB.csv')
+    HML.to_csv(f'{data_center}HML.csv')
     ff_table = pd.concat([daily_data['return'], rf['Price'], SMB,HML], axis = 1)
     ff_table.columns = ['market', 'rf', 'SMB', 'HML']
-    ff_table.to_csv(f'{data_center}ff_table.csv')
-    
+    ff_table.to_csv(f'{data_center}ff_tablenew.csv')
+
+
+
 if __name__ == '__main__':
     ff_data_table()  
+
+
+
+
